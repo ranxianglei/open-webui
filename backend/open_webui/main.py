@@ -97,6 +97,7 @@ from open_webui.routers import (
     utils,
     scim,
     terminals,
+    qoder_sessions,
 )
 
 from open_webui.routers.retrieval import (
@@ -1564,6 +1565,7 @@ if ENABLE_ADMIN_ANALYTICS:
     app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["analytics"])
 app.include_router(utils.router, prefix="/api/v1/utils", tags=["utils"])
 app.include_router(terminals.router, prefix="/api/v1/terminals", tags=["terminals"])
+app.include_router(qoder_sessions.router, prefix="/api/v1/qoder", tags=["qoder"])
 
 # SCIM 2.0 API for identity management
 if ENABLE_SCIM:
