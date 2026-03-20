@@ -120,15 +120,9 @@
   </div>
 </div>
 <script>
-// QoderClaw backend API configuration
-const QODER_API_BASE = 'http://192.168.10.96:8888';
-const API_KEY = 'sk-qoderclaw-default-key';
-
 async function loadSessions() {
   try {
-    const resp = await fetch(`${QODER_API_BASE}/api/qoder-sessions`, {
-      headers: { 'Authorization': `Bearer ${API_KEY}` }
-    });
+    const resp = await fetch('/api/v1/qoder/sessions');
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({ detail: 'Failed to fetch' }));
       throw new Error(err.detail || `HTTP ${resp.status}`);
@@ -195,9 +189,8 @@ async function continueSession(sessionId, btnEl) {
   if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Importing...'; }
 
   try {
-    const resp = await fetch(`${QODER_API_BASE}/api/qoder-sessions/${sessionId}/import`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${API_KEY}` }
+    const resp = await fetch(`/api/v1/qoder/import-session/${sessionId}`, {
+      method: 'POST'
     });
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({ detail: 'Import failed' }));
