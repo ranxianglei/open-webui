@@ -145,6 +145,10 @@ async def get_headers_and_cookies(
         if metadata and metadata.get("chat_id"):
             headers[FORWARD_SESSION_INFO_HEADER_CHAT_ID] = metadata.get("chat_id")
 
+    # Forward x-session-id for QoderClaw session tracking
+    if metadata and metadata.get("chat_id"):
+        headers["x-session-id"] = metadata.get("chat_id")
+
     token = None
     auth_type = config.get("auth_type")
 
