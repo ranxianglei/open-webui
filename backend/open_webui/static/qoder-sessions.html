@@ -120,9 +120,19 @@
   </div>
 </div>
 <script>
+// QoderClaw backend API configuration
+const QODER_API_BASE = 'http://192.168.10.96:8888';
+const API_KEY = 'sk-qoderclaw-default-key';
+
 async function loadSessions() {
   try {
-    const resp = await fetch('/api/v1/qoder/sessions');
+    const resp = await fetch(`${QODER_API_BASE}/api/qoder-sessions`, {
+      headers: { 'Authorization': `Bearer ${API_KEY}` }
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ detail: 'Failed to fetch' }));
+      throw new Error(err.detail || `HTTP ${resp.status}`);
+    }
     const data = await resp.json();
     const sessions = data.sessions || [];
 
@@ -150,7 +160,7 @@ async function loadSessions() {
       const title = s.title || 'Untitled Session';
       return `
         <a href="/static/qoder-session.html?id=${s.id}" class="session-item">
-          <div class="session-icon">\ud83d\udcac</div>
+          <div class="session-icon">&#128172;</div>
           <div class="session-info">
             <div class="session-title">${escapeHtml(title)}</div>
             <div class="session-meta">
@@ -169,6 +179,7 @@ async function loadSessions() {
   } catch (err) {
     document.getElementById('sessions').innerHTML =
       `<div class="empty">Failed to load sessions: ${err.message}</div>`;
+    console.error('Load sessions error:', err);
   }
 }
 
@@ -181,19 +192,18 @@ function escapeHtml(str) {
 async function continueSession(sessionId, btnEl) {
   if (!sessionId) return;
 
-  // Disable button
   if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Importing...'; }
 
   try {
-    // Step 1: Import QoderClaw session into Open WebUI database
-    const resp = await fetch(`/api/v1/qoder/import-session/${sessionId}`, { method: 'POST' });
+    const resp = await fetch(`${QODER_API_BASE}/api/qoder-sessions/${sessionId}/import`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${API_KEY}` }
+    });
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({ detail: 'Import failed' }));
       throw new Error(err.detail || 'Import failed');
     }
     const result = await resp.json();
-
-    // Step 2: Navigate to the Open WebUI chat using the same session ID
     window.open(`/c/${result.chat_id}`, '_blank');
   } catch (e) {
     alert('Failed to import session: ' + e.message);
